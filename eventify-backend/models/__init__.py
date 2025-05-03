@@ -1,0 +1,1 @@
+from .attendee import Attendee
