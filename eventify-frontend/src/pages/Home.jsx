@@ -1,13 +1,40 @@
-import React from "react";
-import { Typography } from "@mui/material";
-import EventList from "../components/EventList";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Box, Typography } from "@mui/material";
+import EventSection from "../components/EventSection";
 
 function Home() {
+  const [eventData, setEventData] = useState({
+    this_week: [],
+    trending: [],
+    other: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:5000/api/categorized-events")
+      .then((res) => {
+        setEventData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching events:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <Typography sx={{ p: 4 }}>Loading events...</Typography>;
+  }
+
   return (
-    <div>
-      <Typography variant="h4">Hi there! Welcome to Eventify 👋</Typography>
-      <EventList />
-    </div>
+    <Box sx={{ p: 4 }}>
+      <EventSection title="This Week" events={eventData.this_week} />
+      <EventSection title="Trending" events={eventData.trending} />
+      <EventSection title="Other Events" events={eventData.other} />
+    </Box>
   );
 }
 

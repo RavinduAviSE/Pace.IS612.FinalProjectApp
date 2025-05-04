@@ -5,7 +5,7 @@ const Header = () => {
     <AppBar position="static" color="primary">
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Eventify
+          📆 Eventify
         </Typography>
         <Box>
           <Button color="inherit">Home</Button>
