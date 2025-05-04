@@ -1,14 +1,18 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Button from "@mui/material/Button";
+import Home from "./pages/Home";
+import Event from "./pages/Event";
 
 function App() {
   return (
-    <Layout>
-      <h1>This is Eventify Web App</h1>
-      <Button variant="contained" color="secondary">
-        Hello world
-      </Button>
-    </Layout>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/event" element={<Event />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
