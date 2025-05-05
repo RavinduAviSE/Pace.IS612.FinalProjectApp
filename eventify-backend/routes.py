@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, abort, jsonify
-from models import Attendee,Event
+from flask import Blueprint, abort, jsonify, request
+from models import Attendee,Event,Booking
 from database.db import db
 
 routes = Blueprint('routes', __name__)
@@ -107,3 +107,54 @@ def get_event_detail(event_id):
         "allowed_min_age": event.allowed_min_age,
         "allowed_state": event.allowed_state
     })    
+    
+@routes.route('/api/register', methods=['POST'])
+def book_event():
+    data = request.json
+
+    firstname = data.get('firstname')
+    lastname = data.get('lastname')
+    age = data.get('age')
+    gender = data.get('gender')
+    state = data.get('state')
+    event_id = data.get('event_id')
+
+    if not all([firstname,lastname, age, gender, state, event_id]):
+        return jsonify({"success": False, "message": "Missing required fields."}), 400
+
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({"success": False, "message": "Event not found."}), 404
+
+    # Check gender restriction
+    if event.allowed_gender.lower() != 'any' and gender.lower() != event.allowed_gender.lower():
+        return jsonify({"success": False, "message": "This event is restricted by gender."}), 403
+
+    # Check age restriction
+    if event.allowed_min_age and age < event.allowed_min_age:
+        return jsonify({"success": False, "message": f"Minimum age required is {event.allowed_min_age}."}), 403
+
+    # Check state restriction
+    if event.allowed_state.lower() != 'any' and state.lower() != event.allowed_state.lower():
+        return jsonify({"success": False, "message": "This event is restricted to a different state."}), 403
+
+    # Check seat availability
+    if event.booked_seats >= event.total_seats:
+        return jsonify({"success": False, "message": "No seats available."}), 403
+
+    # Create booking
+    booking = Booking(
+        event_id=event.id,
+        firstname=firstname,
+        lastname=lastname,
+        age=age,
+        gender=gender,
+        state=state
+    )
+    db.session.add(booking)
+
+    # Update booked seats
+    event.booked_seats += 1
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Booking successful!"}), 201
