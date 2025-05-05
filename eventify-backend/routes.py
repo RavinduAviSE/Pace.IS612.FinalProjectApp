@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, abort, jsonify, request
+from flask import Blueprint, abort, jsonify, request,send_file, make_response
+from io import BytesIO
+from reportlab.pdfgen import canvas
 from models import Attendee,Event,Booking
 from database.db import db
 
@@ -157,4 +159,33 @@ def book_event():
     event.booked_seats += 1
     db.session.commit()
 
-    return jsonify({"success": True, "message": "Booking successful!"}), 201
+    return jsonify({"success": True, "message": "Booking successful!", "booking_id": booking.id}), 201
+
+@routes.route('/api/ticket/<int:booking_id>', methods=['GET'])
+def download_ticket(booking_id):
+    booking = Booking.query.get(booking_id)
+    if not booking:
+        return {"message": "Booking not found"}, 404
+
+    event = Event.query.get(booking.event_id)
+    if not event:
+        return {"message": "Event not found"}, 404
+
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer)
+    c.setFont("Helvetica", 12)
+    
+    c.drawString(50, 800, "🎟 Event Reservation Ticket")
+    c.line(50, 795, 400, 795)
+    c.drawString(50, 770, f"Event: {event.title}")
+    c.drawString(50, 750, f"Date & Time: {event.date} at {event.time}")
+    c.drawString(50, 730, f"Location: {event.location}")
+    c.drawString(50, 710, f"Booked By: {booking.firstname} {booking.lastname}")
+    c.drawString(50, 690, f"Booking ID: {booking.id}")
+    c.drawString(50, 670, "Thank you for registering!")
+
+    c.showPage()
+    c.save()
+
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="ticket.pdf", mimetype='application/pdf')

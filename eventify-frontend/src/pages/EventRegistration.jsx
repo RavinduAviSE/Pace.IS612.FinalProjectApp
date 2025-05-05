@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import FileDownload from "js-file-download";
 import {
   Container,
   Typography,
@@ -20,8 +21,6 @@ const EventRegistration = () => {
     open: false,
     message: "",
     severity: "success",
-    vertical: "top",
-    horizontal: "center",
   });
 
   const formik = useFormik({
@@ -46,12 +45,23 @@ const EventRegistration = () => {
           event_id: eventId,
         })
         .then((res) => {
+          const bookingId = res.data.booking_id;
+          axios
+            .get(`http://127.0.0.1:5000/api/ticket/${bookingId}`, {
+              responseType: "blob",
+            })
+            .then((pdfRes) => {
+              FileDownload(pdfRes.data, "ticket.pdf");
+              setSnackbar({
+                open: true,
+                message: "Ticket downloaded!",
+                severity: "success",
+              });
+            });
           setSnackbar({
             open: true,
             message: res.data.message,
             severity: "success",
-            vertical: "top",
-            horizontal: "center",
           });
           resetForm();
           setTimeout(() => navigate(`/events/${eventId}`), 2000);
@@ -62,8 +72,6 @@ const EventRegistration = () => {
             open: true,
             message: msg,
             severity: "error",
-            vertical: "top",
-            horizontal: "center",
           });
         });
     },
