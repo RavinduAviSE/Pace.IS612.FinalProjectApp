@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, jsonify
+from flask import Blueprint, abort, jsonify
 from models import Attendee,Event
 from database.db import db
 
@@ -80,3 +80,30 @@ def get_categorized_events():
         'trending': [serialize(e) for e in trending],
         'other': [serialize(e) for e in other],
     })
+    
+    
+@routes.route('/api/events/<int:event_id>', methods=['GET'])
+def get_event_detail(event_id):
+    event = Event.query.get(event_id)
+    
+    if not event:
+        abort(404, description="Event not found")
+
+    return jsonify({
+        "id": event.id,
+        "title": event.title,
+        "summary": event.summary,
+        "description": event.description,
+        "category": event.category,
+        "date": event.date,
+        "time": event.time,
+        "location": event.location,
+        "organizor": event.organizor,
+        "organizor_contact_name": event.organizor_contact_name,
+        "organizor_contact_email": event.organizor_contact_email,
+        "total_seats": event.total_seats,
+        "booked_seats": event.booked_seats,
+        "allowed_gender": event.allowed_gender,
+        "allowed_min_age": event.allowed_min_age,
+        "allowed_state": event.allowed_state
+    })    

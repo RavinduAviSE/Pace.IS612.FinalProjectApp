@@ -1,4 +1,5 @@
 import React from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -33,7 +34,15 @@ function EventSection({ title, events }) {
                 <Typography variant="body2">{event.summary}</Typography>
               </CardContent>
               <CardActions>
-                <Button size="small">View Details</Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="secondary"
+                  component={RouterLink}
+                  to={`/events/${event.id}`}
+                >
+                  View Details
+                </Button>
               </CardActions>
             </Card>
           </Grid>
