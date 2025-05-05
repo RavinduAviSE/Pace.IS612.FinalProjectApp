@@ -7,22 +7,25 @@ from database.db import db
 
 routes = Blueprint('routes', __name__)
 
+# Fetch and categorize all events into: this week, trending, or other
 @routes.route('/api/events', methods=['GET'])
 def get_categorized_events():
     events = Event.query.all()
-    this_week = []
-    trending = []
-    other = []
+    this_week = [] #events which are going to happen in with in next 7 days
+    trending = [] #events which over 75% of seats are already booked
+    other = [] #Events which does not falls any of the above two
 
     today = datetime.today().date()
     one_week_later = today + timedelta(days=7)
 
     for event in events:
         try:
+            # Assumes date format is always 'YYYY-MM-DD'
             event_date = datetime.strptime(event.date, "%Y-%m-%d").date()
         except (ValueError, TypeError):
-            continue  # skip if date is invalid
+            continue  
 
+        #calculate precentage of seats which is already booked
         percentage = (event.booked_seats / event.total_seats) * 100 if event.total_seats > 0 else 0
 
         if today <= event_date <= one_week_later:
@@ -47,7 +50,8 @@ def get_categorized_events():
         'other': [serialize(e) for e in other],
     })
     
-    
+ 
+ # Fetch full event detail by ID   
 @routes.route('/api/events/<int:event_id>', methods=['GET'])
 def get_event_detail(event_id):
     event = Event.query.get(event_id)
@@ -73,7 +77,8 @@ def get_event_detail(event_id):
         "allowed_min_age": event.allowed_min_age,
         "allowed_state": event.allowed_state
     })    
-    
+ 
+ # Accept attendee registration and validate restrictions   
 @routes.route('/api/register', methods=['POST'])
 def book_event():
     data = request.json
@@ -92,15 +97,15 @@ def book_event():
     if not event:
         return jsonify({"success": False, "message": "Event not found."}), 404
 
-    # Check gender restriction
+    # Fail if given gender not allowed 
     if event.allowed_gender.lower() != 'any' and gender.lower() != event.allowed_gender.lower():
         return jsonify({"success": False, "message": "This event is restricted by gender."}), 403
 
-    # Check age restriction
+    # Fail if given age is less than allowed minimum
     if event.allowed_min_age and age < event.allowed_min_age:
         return jsonify({"success": False, "message": f"Minimum age required is {event.allowed_min_age}."}), 403
 
-    # Check state restriction
+    # Fail if given state is not what is allowed
     if event.allowed_state.lower() != 'any' and state.lower() != event.allowed_state.lower():
         return jsonify({"success": False, "message": "This event is restricted to a different state."}), 403
 
@@ -125,9 +130,10 @@ def book_event():
 
     return jsonify({"success": True, "message": "Booking successful!", "booking_id": booking.id}), 201
 
+# Generate and download ticket/receipt as a PDF
 @routes.route('/api/ticket/<int:booking_id>', methods=['GET'])
 def download_ticket(booking_id):
-    booking = Booking.query.get(booking_id)
+    booking = Booking.query.get(booking_id) # details of the registered event
     if not booking:
         return {"message": "Booking not found"}, 404
 
@@ -135,10 +141,12 @@ def download_ticket(booking_id):
     if not event:
         return {"message": "Event not found"}, 404
 
+    # Create a PDF in memory
     buffer = BytesIO()
     c = canvas.Canvas(buffer)
     c.setFont("Helvetica", 12)
     
+    # Draw ticket content
     c.drawString(50, 800, "🎟 Event Reservation Ticket")
     c.line(50, 795, 400, 795)
     c.drawString(50, 770, f"Event: {event.title}")
