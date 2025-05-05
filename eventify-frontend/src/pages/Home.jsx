@@ -14,7 +14,7 @@ function Home() {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/api/categorized-events")
+      .get("http://127.0.0.1:5000/api/events")
       .then((res) => {
         setEventData(res.data);
         setLoading(false);
@@ -30,7 +30,7 @@ function Home() {
   }
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ px: 4, py: 2 }}>
       <EventSection title="This Week" events={eventData.this_week} />
       <EventSection title="Trending" events={eventData.trending} />
       <EventSection title="Other Events" events={eventData.other} />

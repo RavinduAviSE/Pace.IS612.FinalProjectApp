@@ -2,46 +2,12 @@ from datetime import datetime, timedelta
 from flask import Blueprint, abort, jsonify, request,send_file, make_response
 from io import BytesIO
 from reportlab.pdfgen import canvas
-from models import Attendee,Event,Booking
+from models import Event,Booking
 from database.db import db
 
 routes = Blueprint('routes', __name__)
 
-@routes.route('/attendees', methods=['GET'])
-def get_attendees():
-    attendees = Attendee.query.all()
-    return jsonify([{
-        'id': a.id,
-        'firstname': a.firstname,
-        'lastname': a.lastname,
-        'age': a.age,
-        'gender': a.gender,
-        'state': a.state
-    } for a in attendees])
-
-@routes.route('/events', methods=['GET'])
-def get_events():
-    events = Event.query.all()
-    events_data = [{
-        'id': event.id,
-        'title': event.title,
-        'description': event.description,
-        'category': event.category,
-        'date': event.date,
-        'time': event.time,
-        'location': event.location,
-        'organizor': event.organizor,
-        'organizor_contact_name': event.organizor_contact_name,
-        'organizor_contact_email': event.organizor_contact_email,
-        'total_seats': event.total_seats,
-        'booked_seats': event.booked_seats,
-        'allowed_gender': event.allowed_gender,
-        'allowed_min_age': event.allowed_min_age,
-        'allowed_state': event.allowed_state
-    } for event in events]
-    return jsonify(events_data)
-
-@routes.route('/api/categorized-events', methods=['GET'])
+@routes.route('/api/events', methods=['GET'])
 def get_categorized_events():
     events = Event.query.all()
     this_week = []
@@ -73,8 +39,6 @@ def get_categorized_events():
             'summary': event.summary,
             'date': event.date,
             'location': event.location,
-            'total_seats': event.total_seats,
-            'booked_seats': event.booked_seats
         }
 
     return jsonify({
