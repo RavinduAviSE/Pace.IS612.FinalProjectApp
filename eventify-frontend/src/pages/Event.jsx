@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Box,
@@ -18,6 +19,8 @@ const Event = () => {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -72,6 +75,7 @@ const Event = () => {
             color="secondary"
             fullWidth
             sx={{ mb: 2 }}
+            onClick={() => navigate(`/events/${event.id}/register`)}
           >
             Register
           </Button>
