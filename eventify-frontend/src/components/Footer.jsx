@@ -8,7 +8,8 @@ const Footer = () => {
     >
       <Container maxWidth="lg">
         <Typography variant="body2" color="text.secondary" align="center">
-          © {new Date().getFullYear()} Eventify. All rights reserved.
+          © {new Date().getFullYear()} Eventify developed by Ravindu Ratnayake.
+          [All rights reserved.]
         </Typography>
       </Container>
     </Box>

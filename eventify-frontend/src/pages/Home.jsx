@@ -12,6 +12,7 @@ function Home() {
 
   const [loading, setLoading] = useState(true);
 
+  // Fetching events split into categories
   useEffect(() => {
     axios
       .get("http://127.0.0.1:5000/api/events")

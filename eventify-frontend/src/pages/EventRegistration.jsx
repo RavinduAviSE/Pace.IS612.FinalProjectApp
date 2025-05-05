@@ -39,18 +39,21 @@ const EventRegistration = () => {
       state: Yup.string().required("State is required"),
     }),
     onSubmit: (values, { resetForm }) => {
+      // uploading user deatis to book the event
       axios
         .post("http://127.0.0.1:5000/api/register", {
           ...values,
           event_id: eventId,
         })
         .then((res) => {
+          // creating ticket for the booking made
           const bookingId = res.data.booking_id;
           axios
             .get(`http://127.0.0.1:5000/api/ticket/${bookingId}`, {
               responseType: "blob",
             })
             .then((pdfRes) => {
+              // downloading created ticket
               FileDownload(pdfRes.data, "ticket.pdf");
               setSnackbar({
                 open: true,

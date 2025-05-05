@@ -1,4 +1,5 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -8,8 +9,9 @@ const Header = () => {
           📆 Eventify
         </Typography>
         <Box>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">Events</Button>
+          <Button color="inherit" component={RouterLink} to={"/"}>
+            Home
+          </Button>
           <Button color="inherit">About</Button>
         </Box>
       </Toolbar>

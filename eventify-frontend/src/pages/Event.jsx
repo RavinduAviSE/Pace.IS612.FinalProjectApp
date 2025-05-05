@@ -16,12 +16,13 @@ import {
 } from "@mui/material";
 
 const Event = () => {
-  const { eventId } = useParams();
+  const { eventId } = useParams(); // id of the selected event
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
+  // fetching details of the selected list
   useEffect(() => {
     axios
       .get(`http://127.0.0.1:5000/api/events/${eventId}`)

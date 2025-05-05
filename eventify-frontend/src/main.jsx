@@ -2,18 +2,18 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import "@fontsource/poppins/400.css"; // Regular weight
-import "@fontsource/poppins/700.css"; // Bold weight
+import "@fontsource/poppins/400.css";
 import App from "./App.jsx";
 import "./index.css";
 
+// material ui theme config
 const theme = createTheme({
   typography: {
     fontFamily: "Poppins, sans-serif",
   },
   palette: {
     primary: {
-      main: "#ffffff", // used for variant="contained" or color="primary"
+      main: "#ffffff",
       contrastText: "#030303",
     },
     secondary: {
